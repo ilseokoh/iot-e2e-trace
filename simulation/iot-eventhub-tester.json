@@ -1,0 +1,46 @@
+{
+    "SchemaVersion": "1.0.0",
+    "Id": "iot-eh-tester-01",
+    "Version": "0.0.1",
+    "Name": "IoT EventHub Tester",
+    "Description": "IoT EventHub Tester",
+    "Protocol": "AMQP",
+    "Simulation": {
+        "InitialState": {
+            "hit": 0,
+            "hitTime": "",
+            "corellationId": ""
+        },
+        "Interval": "00:00:1",
+        "Scripts": [
+            {
+            "Type": "javascript",
+            "Path": "iot-eh-tester-state.js"
+            }
+        ]
+    },
+    "Properties": {
+        "Type": "Rebutton",
+        "ResetTime": "",
+        "TotalCount": 0
+    },
+    "Telemetry": [
+        {
+            "Interval": "00:00:1",
+            "MessageTemplate": "{\"hit\":${hit}, \"hitTime\": \"${hitTime}\", \"corellationId\": \"${corellationId}\"}",
+            "MessageSchema": {
+                "Name": "iot-hand-counter;v1",
+                "Format": "JSON",
+                "Fields": {
+                    "hit": "integer"
+                }
+            }
+        }
+    ],
+    "CloudToDeviceMethods": {
+        "ControlMethod": {
+            "Type": "javascript",
+            "Path": "control-method.js"
+        }
+    }
+}

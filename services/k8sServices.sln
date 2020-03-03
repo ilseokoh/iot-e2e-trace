@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuleSetService", "RuleSetService\RuleSetService.csproj", "{80F7114C-E39E-41E9-911B-EC83A1960F36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingService", "MessagingService\MessagingService.csproj", "{FDB54B42-CA44-4508-BFFB-22903D9D44FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E56509AD-7F40-4B2E-923C-48B594EEF6E7}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+		message-rc.yaml = message-rc.yaml
+		ruleset-rc.yaml = ruleset-rc.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{80F7114C-E39E-41E9-911B-EC83A1960F36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80F7114C-E39E-41E9-911B-EC83A1960F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80F7114C-E39E-41E9-911B-EC83A1960F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80F7114C-E39E-41E9-911B-EC83A1960F36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDB54B42-CA44-4508-BFFB-22903D9D44FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDB54B42-CA44-4508-BFFB-22903D9D44FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDB54B42-CA44-4508-BFFB-22903D9D44FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDB54B42-CA44-4508-BFFB-22903D9D44FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43DD2B8B-7CED-43EC-BBD5-DB7AC68D840A}
+	EndGlobalSection
+EndGlobal

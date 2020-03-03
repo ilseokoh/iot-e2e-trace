@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MessagingService": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
