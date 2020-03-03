@@ -36,7 +36,7 @@ namespace MessagingService
             return Task.CompletedTask;
         }
 
-        public Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> messages)
+        public async Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> messages)
         {
             foreach (var eventData in messages)
             {
@@ -49,10 +49,8 @@ namespace MessagingService
                 var method = new CloudToDeviceMethod("ControlMethod", TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
                 method.SetPayloadJson(data);
 
-                serviceClient.InvokeDeviceMethodAsync(devid, method);
+                await serviceClient.InvokeDeviceMethodAsync(devid, method);
             }
-
-            return context.CheckpointAsync();
         }
     }
 }

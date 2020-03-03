@@ -3,7 +3,7 @@ kind: ReplicationController
 metadata:
   name: rulesetservice-rc
 spec:
-  replicas: 32
+  replicas: 3
   selector:
     app: rulesetservice
   template:

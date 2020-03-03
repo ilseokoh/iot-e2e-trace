@@ -1,44 +1,39 @@
-﻿using Microsoft.Azure.EventHubs;
-using Microsoft.Azure.EventHubs.Processor;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace MessagingService
 {
     public class Program
     {
-        private const string EventHubConnectionString = "";
-        private const string EventHubName = "";
-        private const string StorageContainerName = "";
-        private const string StorageAccountName = "";
-        private const string StorageAccountKey = "";
-
-        private static readonly string StorageConnectionString = string.Format("DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}", StorageAccountName, StorageAccountKey);
+        
         public static void Main(string[] args)
         {
-            MainAsync(args).GetAwaiter().GetResult();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        private static async Task MainAsync(string[] args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            Console.WriteLine("Message Service ... Registering EventProcessor...");
-
-            var eventProcessorHost = new EventProcessorHost(
-                EventHubName,
-                PartitionReceiver.DefaultConsumerGroupName,
-                EventHubConnectionString,
-                StorageConnectionString,
-                StorageContainerName);
-
-            // Registers the Event Processor Host and starts receiving messages
-            await eventProcessorHost.RegisterEventProcessorAsync<MsgServiceEventProcessor>();
-
-            Console.WriteLine("Receiving. Press ENTER to stop worker.");
-            Console.ReadLine();
-
-            // Disposes of the Event Processor Host
-            await eventProcessorHost.UnregisterEventProcessorAsync();
+            var builtConfig = new ConfigurationBuilder()
+                .AddEnvironmentVariables()
+                .Build();
+            
+             return Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddConfiguration(builtConfig);
+                })
+                .ConfigureLogging(logging =>
+                {
+                    logging.AddConsole();
+                })
+                .ConfigureServices(services =>
+                {
+                    services.AddHostedService<MessagingService>();
+                });
         }
     }
 }

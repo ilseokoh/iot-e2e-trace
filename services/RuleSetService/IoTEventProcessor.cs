@@ -41,7 +41,7 @@ namespace RuleSetService
             return Task.CompletedTask;
         }
 
-        public Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> messages)
+        public async Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> messages)
         {
             foreach (var eventData in messages)
             {
@@ -55,7 +55,7 @@ namespace RuleSetService
 
                 try
                 {
-                    eventHubClient.SendAsync(newevent, devid);
+                    await eventHubClient.SendAsync(newevent, devid);
                 }
                 catch (Exception exception)
                 {
@@ -63,7 +63,7 @@ namespace RuleSetService
                 }
             }
 
-            return context.CheckpointAsync();
+            await context.CheckpointAsync();
         }
     }
 }
