@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Devices" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.EventHubs" Version="4.1.0" />
     <PackageReference Include="Microsoft.Azure.EventHubs.Processor" Version="4.1.0" />

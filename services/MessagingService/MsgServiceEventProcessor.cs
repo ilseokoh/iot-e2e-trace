@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Devices;
 using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.EventHubs.Processor;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,31 +14,37 @@ namespace MessagingService
     {
 
         ServiceClient serviceClient;
-        private const string s_connectionString = "";
-        private static Microsoft.Azure.Devices.TransportType s_transportType = Microsoft.Azure.Devices.TransportType.Amqp;
+        private string iothub_connectionString;
+        private Microsoft.Azure.Devices.TransportType s_transportType;
 
-        public MsgServiceEventProcessor()
+        private readonly ILogger _logger;
+
+        public MsgServiceEventProcessor(IConfiguration config, ILogger logger)
         {
+            _logger = logger;
+
+            iothub_connectionString = config.GetValue<string>("IOT_E2E_IOTHUB_SERVICE_CONNECTIONSTRING"); ;
+            s_transportType = Microsoft.Azure.Devices.TransportType.Amqp;
         }
 
         public Task CloseAsync(PartitionContext context, CloseReason reason)
         {
-            Console.WriteLine($"Processor Shutting Down. Partition '{context.PartitionId}', Reason: '{reason}'.");
+            _logger.LogInformation($"Processor Shutting Down. Partition '{context.PartitionId}', Reason: '{reason}'.");
 
             return Task.CompletedTask;
         }
 
         public Task OpenAsync(PartitionContext context)
         {
-            serviceClient = ServiceClient.CreateFromConnectionString(s_connectionString, s_transportType);
+            serviceClient = ServiceClient.CreateFromConnectionString(iothub_connectionString, s_transportType);
 
-            Console.WriteLine($"SimpleEventProcessor initialized. Partition: '{context.PartitionId}'");
+            _logger.LogInformation($"SimpleEventProcessor initialized. Partition: '{context.PartitionId}'");
             return Task.CompletedTask;
         }
 
         public Task ProcessErrorAsync(PartitionContext context, Exception error)
         {
-            Console.WriteLine($"Error on Partition: {context.PartitionId}, Error: {error.Message}");
+            _logger.LogInformation($"Error on Partition: {context.PartitionId}, Error: {error.Message}");
             return Task.CompletedTask;
         }
 
@@ -46,7 +53,7 @@ namespace MessagingService
             foreach (var eventData in messages)
             {
                 var data = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
-                Console.WriteLine($"Message received. Partition: '{context.PartitionId}', Data: '{data}'");
+                _logger.LogInformation($"Message received. Partition: '{context.PartitionId}', Data: '{data}'");
 
                 var devid = eventData.Properties["iothub-connection-device-id"].ToString();
 
@@ -60,7 +67,7 @@ namespace MessagingService
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine(ex.ToString());
+                    _logger.LogError(ex.ToString());
                 }
             }
         }

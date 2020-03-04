@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.EventHubs.Processor;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,17 +13,22 @@ namespace RuleSetService
     {
 
         private static EventHubClient eventHubClient;
-        private const string EventHubConnectionString = "";
-        private const string EventHubName = "";
+        private  string EventHubConnectionString;
+        private  string MsgSvcEventHubName;
 
+        private readonly ILogger _logger;
 
-        public IoTEventProcessor()
+        public IoTEventProcessor(IConfiguration config, ILogger logger)
         {
+            _logger = logger;
+
+            EventHubConnectionString = config.GetValue<string>("IOT_E2E_EH_CONNECTIONSTRING");
+            MsgSvcEventHubName = config.GetValue<string>("IOT_E2E_EH_MSG_SVC_NAME");
         }
 
         public Task CloseAsync(PartitionContext context, CloseReason reason)
         {
-            Console.WriteLine($"Processor Shutting Down. Partition '{context.PartitionId}', Reason: '{reason}'.");
+            _logger.LogInformation($"Processor Shutting Down. Partition '{context.PartitionId}', Reason: '{reason}'.");
             // close the eventhub client
             eventHubClient.Close();
 
@@ -33,17 +39,17 @@ namespace RuleSetService
         {
             var connectionStringBuilder = new EventHubsConnectionStringBuilder(EventHubConnectionString)
             {
-                EntityPath = EventHubName
+                EntityPath = MsgSvcEventHubName
             };
             eventHubClient = EventHubClient.CreateFromConnectionString(connectionStringBuilder.ToString());
 
-            Console.WriteLine($"SimpleEventProcessor initialized. Partition: '{context.PartitionId}'");
+            _logger.LogInformation($"SimpleEventProcessor initialized. Partition: '{context.PartitionId}'");
             return Task.CompletedTask;
         }
 
         public Task ProcessErrorAsync(PartitionContext context, Exception error)
         {
-            Console.WriteLine($"Error on Partition: {context.PartitionId}, Error: {error.Message}");
+            _logger.LogInformation($"Error on Partition: {context.PartitionId}, Error: {error.Message}");
             return Task.CompletedTask;
         }
 
@@ -52,7 +58,7 @@ namespace RuleSetService
             foreach (var eventData in messages)
             {
                 var data = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
-                Console.WriteLine($"Message received. Partition: '{context.PartitionId}', Data: '{data}'");
+                _logger.LogInformation($"Message received. Partition: '{context.PartitionId}', Data: '{data}'");
 
                 var devid = eventData.SystemProperties["iothub-connection-device-id"].ToString();
 
@@ -65,7 +71,7 @@ namespace RuleSetService
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine($"{DateTime.Now} > Exception: {exception.Message}");
+                    _logger.LogError($"{DateTime.Now} > Exception: {exception.Message}");
                 }
             }
 

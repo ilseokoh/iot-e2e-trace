@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.EventHubs.Processor;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,36 +15,48 @@ namespace RuleSetService
     {
         private EventProcessorHost eventProcessorHost;
 
-        private const string EventHubConnectionString = "";
-        private const string EventHubName = "";
-        private const string StorageContainerName = "";
-        private const string StorageAccountName = "";
-        private const string StorageAccountKey = "";
-
-        private static readonly string StorageConnectionString = string.Format("DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}", StorageAccountName, StorageAccountKey);
-
         private readonly ILogger<RuleSetService> _logger;
+        private readonly IConfiguration _config;
 
-        public RuleSetService(ILogger<RuleSetService> logger)
+        private string EventHubConnectionString;
+        private string IoTRoutingEventHubName;
+        private string EventHubConsumerGroup;
+        private string StorageContainerName;
+        private string StorageAccountName;
+        private string StorageAccountKey;
+
+        private string StorageConnectionString;
+
+        public RuleSetService(ILogger<RuleSetService> logger, IConfiguration config)
         {
             _logger = logger;
+            _config = config;
+
+            EventHubConnectionString = _config.GetValue<string>("IOT_E2E_EH_CONNECTIONSTRING");
+            IoTRoutingEventHubName = _config.GetValue<string>("IOT_E2E_EH_IOT_ROUTING_NAME");
+            EventHubConsumerGroup = _config.GetValue<string>("IOT_E2E_EH_CONSUMER_GROUP");
+
+            StorageContainerName = _config.GetValue<string>("IOT_E2E_STORAGE_IOT_ROUTING_CONTAINER_NAME");
+            StorageAccountName = _config.GetValue<string>("IOT_E2E_STORAGE_ACCOUNT_NAME");
+            StorageAccountKey = _config.GetValue<string>("IOT_E2E_STORAGE_ACCOUNT_KEY");
+
+            StorageConnectionString = string.Format("DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}", StorageAccountName, StorageAccountKey);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("RuleSetService Background Service is starting.");
-            _logger.LogInformation("RulSet Service ... Registering EventProcessor...");
 
             eventProcessorHost = new EventProcessorHost(
-                EventHubName,
-                PartitionReceiver.DefaultConsumerGroupName,
+                IoTRoutingEventHubName,
+                EventHubConsumerGroup,
                 EventHubConnectionString,
                 StorageConnectionString,
                 StorageContainerName);
 
             // Registers the Event Processor Host and starts receiving messages
-            await eventProcessorHost.RegisterEventProcessorAsync<IoTEventProcessor>();
-
+            // await eventProcessorHost.RegisterEventProcessorAsync<IoTEventProcessor>();
+            await eventProcessorHost.RegisterEventProcessorFactoryAsync(new IoTEventProcessorFactory(_config, _logger));
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

@@ -17,10 +17,6 @@ namespace MessagingService
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var builtConfig = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-                .Build();
-
             return Host.CreateDefaultBuilder(args)
                .ConfigureServices(services =>
                {
@@ -29,7 +25,8 @@ namespace MessagingService
                })
                .ConfigureAppConfiguration((hostingContext, config) =>
                {
-                   config.AddConfiguration(builtConfig);
+                   config.AddEnvironmentVariables(prefix: "IOT_E2E_");
+                   config.AddJsonFile("appsettings.json");
                })
                .ConfigureLogging(logging =>
                {
