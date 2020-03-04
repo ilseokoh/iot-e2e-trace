@@ -10,7 +10,6 @@ namespace RuleSetService
 
     class Program
     {
-        
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
@@ -23,6 +22,11 @@ namespace RuleSetService
                 .Build();
 
             return Host.CreateDefaultBuilder(args)
+                .ConfigureServices(services =>
+                {
+                    services.AddLogging();
+                    services.AddHostedService<RuleSetService>();
+                })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.AddConfiguration(builtConfig);
@@ -30,10 +34,6 @@ namespace RuleSetService
                 .ConfigureLogging(logging =>
                 {
                     logging.AddConsole();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddHostedService<RuleSetService>();
                 });
         }
     }

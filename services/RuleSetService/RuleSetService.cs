@@ -22,9 +22,9 @@ namespace RuleSetService
 
         private static readonly string StorageConnectionString = string.Format("DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}", StorageAccountName, StorageAccountKey);
 
-        private readonly ILogger _logger;
+        private readonly ILogger<RuleSetService> _logger;
 
-        public RuleSetService(ILogger logger)
+        public RuleSetService(ILogger<RuleSetService> logger)
         {
             _logger = logger;
         }

@@ -20,20 +20,21 @@ namespace MessagingService
             var builtConfig = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .Build();
-            
-             return Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddConfiguration(builtConfig);
-                })
-                .ConfigureLogging(logging =>
-                {
-                    logging.AddConsole();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddHostedService<MessagingService>();
-                });
+
+            return Host.CreateDefaultBuilder(args)
+               .ConfigureServices(services =>
+               {
+                   services.AddLogging();
+                   services.AddHostedService<MessagingService>();
+               })
+               .ConfigureAppConfiguration((hostingContext, config) =>
+               {
+                   config.AddConfiguration(builtConfig);
+               })
+               .ConfigureLogging(logging =>
+               {
+                   logging.AddConsole();
+               });
         }
     }
 }

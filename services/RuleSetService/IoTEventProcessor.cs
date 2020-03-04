@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.EventHubs.Processor;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,6 +14,11 @@ namespace RuleSetService
         private static EventHubClient eventHubClient;
         private const string EventHubConnectionString = "";
         private const string EventHubName = "";
+
+
+        public IoTEventProcessor()
+        {
+        }
 
         public Task CloseAsync(PartitionContext context, CloseReason reason)
         {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Devices;
 using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.EventHubs.Processor;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,10 @@ namespace MessagingService
         ServiceClient serviceClient;
         private const string s_connectionString = "";
         private static Microsoft.Azure.Devices.TransportType s_transportType = Microsoft.Azure.Devices.TransportType.Amqp;
+
+        public MsgServiceEventProcessor()
+        {
+        }
 
         public Task CloseAsync(PartitionContext context, CloseReason reason)
         {
@@ -45,11 +50,18 @@ namespace MessagingService
 
                 var devid = eventData.Properties["iothub-connection-device-id"].ToString();
 
-                // invoke direct method
-                var method = new CloudToDeviceMethod("ControlMethod", TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
-                method.SetPayloadJson(data);
+                try
+                {
+                    // invoke direct method
+                    var method = new CloudToDeviceMethod("ControlMethod", TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+                    method.SetPayloadJson(data);
 
-                await serviceClient.InvokeDeviceMethodAsync(devid, method);
+                    await serviceClient.InvokeDeviceMethodAsync(devid, method);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             }
         }
     }

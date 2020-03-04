@@ -3,7 +3,7 @@ kind: ReplicationController
 metadata:
   name: messageservice-rc
 spec:
-  replicas: 3
+  replicas: 32
   selector:
     app: messageservice
   template:
