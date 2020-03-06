@@ -18,7 +18,7 @@ namespace MessagingService
     {
 
         ServiceClient serviceClient;
-        RegistryManager iotRegManager;
+        //RegistryManager iotRegManager;
         private string iothub_connectionString;
         private Microsoft.Azure.Devices.TransportType s_transportType;
 
@@ -44,7 +44,7 @@ namespace MessagingService
         public Task OpenAsync(PartitionContext context)
         {
             serviceClient = ServiceClient.CreateFromConnectionString(iothub_connectionString, s_transportType);
-            iotRegManager = RegistryManager.CreateFromConnectionString(iothub_connectionString);
+            //iotRegManager = RegistryManager.CreateFromConnectionString(iothub_connectionString);
 
             _logger.LogInformation($"SimpleEventProcessor initialized. Partition: '{context.PartitionId}'");
             return Task.CompletedTask;
@@ -58,11 +58,9 @@ namespace MessagingService
 
         public async Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> messages)
         {
-            Stopwatch swatch = new Stopwatch();
-
             foreach (var eventData in messages)
             {
-                swatch.Start();
+                var reqTime = DateTime.UtcNow;
 
                 var data = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
                 _logger.LogInformation($"Message received. Partition: '{context.PartitionId}', Data: '{data}'");
@@ -70,44 +68,59 @@ namespace MessagingService
                 var hitmsg = JsonConvert.DeserializeObject<HitCountMessage>(data);
                 var devid = eventData.Properties["iothub-connection-device-id"].ToString();
 
-                bool hasDevice;
+                //bool hasDevice;
+                //try
+                //{
+                //    // Check the device exist
+                //    var device = await iotRegManager.GetDeviceAsync(devid);
+                //    hasDevice = (device != null ? true : false);
+                //}
+                //catch
+                //{
+                //    hasDevice = false;
+                //}
+
+                //bool ehResult = true;
+                //if (hasDevice)
+                //{
+                //    try
+                //    {
+                //        // invoke direct method
+                //        var method = new CloudToDeviceMethod("ControlMethod");
+                //        method.SetPayloadJson(data);
+
+                //        await serviceClient.InvokeDeviceMethodAsync(devid, method);
+                //        ehResult = true;
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _logger.LogError(ex.ToString());
+                //        ehResult = false;
+                //    }
+                //}
+                //else
+                //{
+                //    _logger.LogError("Device not found. No method call.");
+                //}
+
+                bool ehResult;
                 try
                 {
-                    // Check the device exist
-                    var device = await iotRegManager.GetDeviceAsync(devid);
-                    hasDevice = (device != null ? true : false);
+                    // invoke direct method
+                    var method = new CloudToDeviceMethod("ControlMethod");
+                    method.SetPayloadJson(data);
+
+                    await serviceClient.InvokeDeviceMethodAsync(devid, method);
+                    ehResult = true;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    hasDevice = false;
+                    _logger.LogError(ex.ToString());
+                    ehResult = false;
                 }
 
-                bool ehResult = true;
-                if (hasDevice)
-                {
-                    try
-                    {
-                        // invoke direct method
-                        var method = new CloudToDeviceMethod("ControlMethod");
-                        method.SetPayloadJson(data);
-
-                        await serviceClient.InvokeDeviceMethodAsync(devid, method);
-                        ehResult = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex.ToString());
-                        ehResult = false;
-                    }
-                }
-                else
-                {
-                    _logger.LogError("Device not found. No method call.");
-                }
-
-                swatch.Stop();
                 var reqid = Guid.NewGuid().ToString();
-                var reqTime = DateTime.UtcNow;
+                
                 //var duration = reqTime.Subtract(DateTimeOffset.Parse(eventData.Properties["ruleset-request-time"].ToString()));
                 var duration = reqTime.Subtract(eventData.SystemProperties.EnqueuedTimeUtc);
 

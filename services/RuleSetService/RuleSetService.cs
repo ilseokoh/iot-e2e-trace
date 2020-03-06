@@ -49,6 +49,7 @@ namespace RuleSetService
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("RuleSetService Background Service is starting.");
+            _logger.LogInformation($"Consumer Group: {EventHubConsumerGroup}");
 
             // EPH Init
             eventProcessorHost = new EventProcessorHost(

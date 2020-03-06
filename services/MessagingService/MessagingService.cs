@@ -50,6 +50,7 @@ namespace MessagingService
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Message Service ... Registering EventProcessor...");
+            _logger.LogInformation($"Consumer Group: {EventHubConsumerGroup}");
 
             eventProcessorHost = new EventProcessorHost(
                 MsgSvcEventHubName,
