@@ -131,6 +131,8 @@ namespace MessagingService
                 _telemetryClient.TrackDependency(dependencyTelemetry);
                 _telemetryClient.Flush();
             }
+
+            await context.CheckpointAsync();
         }
     }
 }

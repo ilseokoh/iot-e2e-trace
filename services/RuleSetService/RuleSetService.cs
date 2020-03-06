@@ -50,6 +50,7 @@ namespace RuleSetService
         {
             _logger.LogInformation("RuleSetService Background Service is starting.");
 
+            // EPH Init
             eventProcessorHost = new EventProcessorHost(
                 IoTRoutingEventHubName,
                 EventHubConsumerGroup,
@@ -59,6 +60,8 @@ namespace RuleSetService
 
             // Registers the Event Processor Host and starts receiving messages
             // await eventProcessorHost.RegisterEventProcessorAsync<IoTEventProcessor>();
+
+            // Use factory
             await eventProcessorHost.RegisterEventProcessorFactoryAsync(new IoTEventProcessorFactory(_config, _logger, _telemetryClient));
         }
 
