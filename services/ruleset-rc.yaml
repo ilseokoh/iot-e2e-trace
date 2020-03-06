@@ -16,22 +16,3 @@ spec:
       - name: rulesetservice
         image: testappreg001.azurecr.io/rulesetservice:v1
         imagePullPolicy: Always
-        env:
-        - name: IOT_E2E_EH_CONNECTIONSTRING
-          value: Endpoint=sb://testappeventhubns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=9kEpWtpclDwonMM/qJyCELkOPy4iA/xhYELVmOFKXnQ=
-        - name: IOT_E2E_EH_IOT_ROUTING_NAME
-          value: iothubrouting
-        - name: IOT_E2E_EH_MSG_SVC_NAME
-          value: msgsvchub
-        - name: IOT_E2E_EH_CONSUMER_GROUP
-          value: $Default
-        - name: IOT_E2E_STORAGE_IOT_ROUTING_CONTAINER_NAME
-          value: eph-iotrouting
-        - name: IOT_E2E_STORAGE_MSG_SVC_CONTAINER_NAME
-          value: eph-msgservice
-        - name: IOT_E2E_STORAGE_ACCOUNT_NAME
-          value: testappstorage001
-        - name: IOT_E2E_STORAGE_ACCOUNT_KEY
-          value: nVCgo2EvXQYagSvJosNKGDR9n18T0DVhYnzHDranuqPfIRgbDFF3G8ayYw+vtkdx2G2DrD8dwM9+GMo/UTFi/g==
-        - name: IOT_E2E_IOTHUB_SERVICE_CONNECTIONSTRING
-          value: HostName=ephiothub001.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=KPf6jNrB3gwvdPq/pZ4MJZZ0i9DxNlnL+vWRwEdGn88=

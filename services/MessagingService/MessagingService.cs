@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.EventHubs;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.EventHubs.Processor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +18,7 @@ namespace MessagingService
 
         private readonly ILogger<MessagingService> _logger;
         private readonly IConfiguration _config;
+        private TelemetryClient _telemetryClient;
 
         private string EventHubConnectionString;
         private string MsgSvcEventHubName;
@@ -27,10 +29,11 @@ namespace MessagingService
 
         private string StorageConnectionString;
 
-        public MessagingService(ILogger<MessagingService> logger, IConfiguration config)
+        public MessagingService(ILogger<MessagingService> logger, IConfiguration config, TelemetryClient tc)
         {
             _logger = logger;
             _config = config;
+            _telemetryClient = tc;
 
             EventHubConnectionString = _config.GetValue<string>("IOT_E2E_EH_CONNECTIONSTRING");
             MsgSvcEventHubName = _config.GetValue<string>("IOT_E2E_EH_MSG_SVC_NAME");
@@ -57,7 +60,7 @@ namespace MessagingService
 
             // Registers the Event Processor Host and starts receiving messages
             //await eventProcessorHost.RegisterEventProcessorAsync<MsgServiceEventProcessor>();
-            await eventProcessorHost.RegisterEventProcessorFactoryAsync(new MsgServiceEventProcessorFactory(_config, _logger));
+            await eventProcessorHost.RegisterEventProcessorFactoryAsync(new MsgServiceEventProcessorFactory(_config, _logger, _telemetryClient));
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

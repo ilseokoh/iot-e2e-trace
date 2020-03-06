@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.EventHubs;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.EventHubs.Processor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +18,7 @@ namespace RuleSetService
 
         private readonly ILogger<RuleSetService> _logger;
         private readonly IConfiguration _config;
+        private TelemetryClient _telemetryClient;
 
         private string EventHubConnectionString;
         private string IoTRoutingEventHubName;
@@ -27,10 +29,11 @@ namespace RuleSetService
 
         private string StorageConnectionString;
 
-        public RuleSetService(ILogger<RuleSetService> logger, IConfiguration config)
+        public RuleSetService(ILogger<RuleSetService> logger, IConfiguration config, TelemetryClient tc)
         {
             _logger = logger;
             _config = config;
+            _telemetryClient = tc;
 
             EventHubConnectionString = _config.GetValue<string>("IOT_E2E_EH_CONNECTIONSTRING");
             IoTRoutingEventHubName = _config.GetValue<string>("IOT_E2E_EH_IOT_ROUTING_NAME");
@@ -56,7 +59,7 @@ namespace RuleSetService
 
             // Registers the Event Processor Host and starts receiving messages
             // await eventProcessorHost.RegisterEventProcessorAsync<IoTEventProcessor>();
-            await eventProcessorHost.RegisterEventProcessorFactoryAsync(new IoTEventProcessorFactory(_config, _logger));
+            await eventProcessorHost.RegisterEventProcessorFactoryAsync(new IoTEventProcessorFactory(_config, _logger, _telemetryClient));
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

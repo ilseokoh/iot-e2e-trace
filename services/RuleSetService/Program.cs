@@ -22,6 +22,7 @@ namespace RuleSetService
                 {
                     services.AddLogging();
                     services.AddHostedService<RuleSetService>();
+                    services.AddApplicationInsightsTelemetryWorkerService();
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {

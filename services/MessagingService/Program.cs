@@ -22,6 +22,7 @@ namespace MessagingService
                {
                    services.AddLogging();
                    services.AddHostedService<MessagingService>();
+                   services.AddApplicationInsightsTelemetryWorkerService();
                })
                .ConfigureAppConfiguration((hostingContext, config) =>
                {
