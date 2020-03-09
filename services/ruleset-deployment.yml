@@ -1,14 +1,16 @@
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: rulesetservice-rc
+  name: rulesetservice-deployment
+  labels:
+    app: rulesetservice
 spec:
   replicas: 32
   selector:
-    app: rulesetservice
+    matchLabels:
+      app: rulesetservice
   template:
     metadata:
-      name: rulesetservice-pod
       labels:
         app: rulesetservice
     spec:
