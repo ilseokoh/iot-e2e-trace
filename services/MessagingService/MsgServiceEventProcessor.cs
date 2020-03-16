@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MessagingService
@@ -103,21 +104,23 @@ namespace MessagingService
                 //    _logger.LogError("Device not found. No method call.");
                 //}
 
-                bool ehResult;
-                try
-                {
-                    // invoke direct method
-                    var method = new CloudToDeviceMethod("ControlMethod");
-                    method.SetPayloadJson(data);
+                //bool ehResult;
+                //try
+                //{
+                //    // invoke direct method
+                //    var method = new CloudToDeviceMethod("ControlMethod");
+                //    method.SetPayloadJson(data);
 
-                    await serviceClient.InvokeDeviceMethodAsync(devid, method);
-                    ehResult = true;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.ToString());
-                    ehResult = false;
-                }
+                //    await serviceClient.InvokeDeviceMethodAsync(devid, method);
+                //    ehResult = true;
+                //}
+                //catch (Exception ex)
+                //{
+                //    _logger.LogError(ex.ToString());
+                //    ehResult = false;
+                //}
+
+                ThreadPool.QueueUserWorkItem(InvokeDeviceMethod, devid);
 
                 var reqid = Guid.NewGuid().ToString();
                 
@@ -129,7 +132,7 @@ namespace MessagingService
                     Id = reqid,
                     Duration = duration,
                     Target = "IoT Hub",
-                    Success = ehResult,
+                    Success = true,
                     Name = "MessageService processing",
                     Timestamp = reqTime
                 };
@@ -146,6 +149,49 @@ namespace MessagingService
             }
 
             await context.CheckpointAsync();
+        }
+
+        private void InvokeDeviceMethod(object devid)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            bool result;
+            try
+            {
+                // invoke direct method
+                var method = new CloudToDeviceMethod("ControlMethod");
+
+                //Task.Run(async () => await serviceClient.InvokeDeviceMethodAsync(devid.ToString(), method));
+                serviceClient.InvokeDeviceMethodAsync(devid.ToString(), method).GetAwaiter().GetResult();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                result = false;
+            }
+
+            sw.Stop();
+            var dependencyTelemetry = new DependencyTelemetry
+            {
+                Id = Guid.NewGuid().ToString(),
+                Duration = sw.Elapsed,
+                Target = "IoT Hub",
+                Success = result,
+                Name = "DirectMothod processing",
+                Timestamp = DateTime.UtcNow
+            };
+            //dependencyTelemetry.Context.Operation.Id = hitmsg.corellationId;
+            //dependencyTelemetry.Context.Operation.ParentId = (eventData.Properties.ContainsKey("ruleset-request-id") ? eventData.Properties["ruleset-request-id"]?.ToString() : "");
+
+            dependencyTelemetry.Context.Cloud.RoleName = "IoT Hub";
+            dependencyTelemetry.Context.Cloud.RoleInstance = Environment.MachineName;
+
+            dependencyTelemetry.Properties["device-id"] = devid.ToString();
+
+            _telemetryClient.TrackDependency(dependencyTelemetry);
+            _telemetryClient.Flush();
         }
     }
 }

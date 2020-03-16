@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "IoTMessageService": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

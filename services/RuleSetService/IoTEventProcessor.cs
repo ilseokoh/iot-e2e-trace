@@ -65,7 +65,7 @@ namespace RuleSetService
 
             foreach (var eventData in messages)
             {
-                swatch.Start();
+                swatch.Restart();
 
                 var data = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
                 _logger.LogInformation($"Message received. Partition: '{context.PartitionId}', Data: '{data}'");

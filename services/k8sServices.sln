@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuleSetService", "RuleSetService\RuleSetService.csproj", "{80F7114C-E39E-41E9-911B-EC83A1960F36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RuleSetService", "RuleSetService\RuleSetService.csproj", "{80F7114C-E39E-41E9-911B-EC83A1960F36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingService", "MessagingService\MessagingService.csproj", "{FDB54B42-CA44-4508-BFFB-22903D9D44FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessagingService", "MessagingService\MessagingService.csproj", "{FDB54B42-CA44-4508-BFFB-22903D9D44FB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E56509AD-7F40-4B2E-923C-48B594EEF6E7}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		message-rc.yaml = message-rc.yaml
 		ruleset-rc.yaml = ruleset-rc.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiService", "ApiService\ApiService.csproj", "{6275EC30-5453-452B-B3EF-E951DCC99417}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,10 @@ Global
 		{FDB54B42-CA44-4508-BFFB-22903D9D44FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDB54B42-CA44-4508-BFFB-22903D9D44FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDB54B42-CA44-4508-BFFB-22903D9D44FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6275EC30-5453-452B-B3EF-E951DCC99417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6275EC30-5453-452B-B3EF-E951DCC99417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6275EC30-5453-452B-B3EF-E951DCC99417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6275EC30-5453-452B-B3EF-E951DCC99417}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
