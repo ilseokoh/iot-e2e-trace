@@ -92,6 +92,8 @@ namespace IoTMessageService
             var devid = "";
 
             // Invoke API Service.
+
+
             swatch.Stop();
 
             var dependencyTelemetry = new DependencyTelemetry
