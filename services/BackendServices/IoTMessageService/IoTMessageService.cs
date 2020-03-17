@@ -13,6 +13,10 @@ using Azure.Storage.Blobs;
 using Azure.Messaging.EventHubs.Producer;
 using System.Diagnostics;
 using Microsoft.ApplicationInsights.DataContracts;
+using System.Net.Http;
+using BackendService.Data;
+using Newtonsoft.Json;
+using System.Text.Unicode;
 
 namespace IoTMessageService
 {
@@ -22,6 +26,8 @@ namespace IoTMessageService
 
         private readonly ILogger<IoTMessageService> _logger;
         private readonly IConfiguration _config;
+        private readonly IHttpClientFactory _clientFactory;
+
         private TelemetryClient _telemetryClient;
 
         private string ioTHubEPConnectionString;
@@ -30,18 +36,23 @@ namespace IoTMessageService
         private string storageContainerName;
         private string storageConnectionString;
 
+        private string apiUrl;
 
-        IoTMessageService(ILogger<IoTMessageService> logger, IConfiguration config, TelemetryClient tc)
+
+        IoTMessageService(ILogger<IoTMessageService> logger, IConfiguration config, TelemetryClient tc, IHttpClientFactory clientFactory)
         {
             _logger = logger;
             _config = config;
             _telemetryClient = tc;
+            _clientFactory = clientFactory;
 
             ioTHubEPConnectionString = _config.GetValue<string>("IOT_E2E_IOTHUB_DEFAULT_EP_CONNECTIONSTRING");
             ioTHubEPConsumerGroup = _config.GetValue<string>("IOT_E2E_IOTHUB_DEFAULT_EP_CONSUMER_GROUP");
 
             storageContainerName = _config.GetValue<string>("IOT_E2E_STORAGE_IOT_CONTAINER_NAME");
-            storageConnectionString = _config.GetValue<string>("IOT_E2E_STORAGE_CONNECTIONSTRING"); 
+            storageConnectionString = _config.GetValue<string>("IOT_E2E_STORAGE_CONNECTIONSTRING");
+
+            apiUrl = _config.GetValue<string>("IOT_E2E_API_SERVICE_URL");
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -80,7 +91,7 @@ namespace IoTMessageService
             }
         }
 
-        private Task ProcessEventHandler(ProcessEventArgs eventArgs)
+        private async Task ProcessEventHandler(ProcessEventArgs eventArgs)
         {
             Stopwatch swatch = new Stopwatch();
             swatch.Start();
@@ -89,9 +100,27 @@ namespace IoTMessageService
             _logger.LogInformation($"Message received. Partition: '{eventArgs.Partition.PartitionId}', Data: '{data}'");
 
             bool result = true;
-            var devid = "";
+            var devid = eventArgs.Data.SystemProperties["iothub-connection-device-id"].ToString();
+            var iothubTimestamp = DateTimeOffset.Parse(eventArgs.Data.SystemProperties["iothub-enqueuedtime"].ToString());
+            var telemetry = JsonConvert.DeserializeObject<ChillerTelemetry>(data);
 
             // Invoke API Service.
+            var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+            var newmsg = new ChillerMessage()
+            {
+                DeviceId = devid,
+                Id = Guid.NewGuid().ToString(), 
+                Humidity = telemetry.humidity, 
+                Pressure = telemetry.pressure,
+                Temperature = telemetry.temperature,
+                TimeStamp = iothubTimestamp
+            };
+            request.Content = new StringContent(JsonConvert.SerializeObject(newmsg), Encoding.UTF8, "application/json");
+
+            var response = await _clientFactory.CreateClient().SendAsync(request);
+
+            if (response.IsSuccessStatusCode) result = true;
+            else result = false;
 
 
             swatch.Stop();
@@ -100,9 +129,9 @@ namespace IoTMessageService
             {
                 Id = Guid.NewGuid().ToString(),
                 Duration = swatch.Elapsed,
-                Target = "",
+                Target = "ApiService",
                 Success = result, 
-                Name = "IoT Message Service",
+                Name = "IoTMessageService",
                 Timestamp = DateTimeOffset.UtcNow
             };
 
@@ -111,8 +140,6 @@ namespace IoTMessageService
             dependencyTelemetry.Context.Cloud.RoleInstance = Environment.MachineName;
 
             dependencyTelemetry.Properties["deviceid"] = devid;
-
-            return Task.CompletedTask;
         }
 
         private Task ProcessErrorHandler(ProcessErrorEventArgs eventArgs)
@@ -131,5 +158,6 @@ namespace IoTMessageService
         {
             return Task.CompletedTask;
         }
+
     }
 }
