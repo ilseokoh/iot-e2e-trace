@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BackendServices\BackendService.Data\BackendService.Data.csproj" />
+    <ProjectReference Include="..\BackendService.Data\BackendService.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
