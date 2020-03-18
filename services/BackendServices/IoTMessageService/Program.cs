@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.ApplicationInsights.Extensibility;
 
-namespace RuleSetService
+namespace IoTMessageService
 {
-
     class Program
     {
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
         }
@@ -21,13 +21,15 @@ namespace RuleSetService
                 .ConfigureServices(services =>
                 {
                     services.AddLogging();
-                    services.AddHostedService<RuleSetService>();
+                    services.AddHostedService<IoTMessageService>();
                     services.AddApplicationInsightsTelemetryWorkerService();
+                    services.AddSingleton<ITelemetryInitializer, CustomInitializer>();
+                    services.AddHttpClient();
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    config.AddEnvironmentVariables(prefix: "IOT_E2E_");
                     config.AddJsonFile("appsettings.json");
+                    config.AddEnvironmentVariables(prefix: "IOT_E2E_");
                 })
                 .ConfigureLogging(logging =>
                 {

@@ -14,5 +14,5 @@ spec:
     spec:
       containers:
       - name: messageservice
-        image: testappreg001.azurecr.io/messagingservice:v1
+        image: ehcontainer001.azurecr.io/messagingservice:v1
         imagePullPolicy: Always
