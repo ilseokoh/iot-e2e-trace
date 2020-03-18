@@ -24,7 +24,7 @@ namespace ApiService.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<ChillerMessage>>> Get()
         {
-            var query = "SELECT TOP 10 * FROM c ORDER BY timestamp DESC";
+            var query = "SELECT TOP 10 * FROM c";
             try
             {
                 var results = await _chillerDbService.GetMessageQueryAsync(query);

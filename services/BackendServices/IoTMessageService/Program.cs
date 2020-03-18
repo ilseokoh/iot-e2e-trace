@@ -3,7 +3,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Net.Http;
+using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.ApplicationInsights.Extensibility;
 
 namespace IoTMessageService
 {
@@ -22,6 +23,7 @@ namespace IoTMessageService
                     services.AddLogging();
                     services.AddHostedService<IoTMessageService>();
                     services.AddApplicationInsightsTelemetryWorkerService();
+                    services.AddSingleton<ITelemetryInitializer, CustomInitializer>();
                     services.AddHttpClient();
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
