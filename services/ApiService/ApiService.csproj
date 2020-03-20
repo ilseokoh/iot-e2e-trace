@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <UserSecretsId>fe2dc7cb-6421-492e-a981-841aeb5eca99</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileTag>iotdistracingacr.azurecr.io/apiservice:v1</DockerfileTag>
+    <DockerImageLabels>apiservice</DockerImageLabels>
     <ApplicationInsightsResourceId>/subscriptions/4fffeeaa-e3df-41e4-8031-2898abe531d0/resourcegroups/IoTE2EGroup/providers/microsoft.insights/components/ApiService</ApplicationInsightsResourceId>
   </PropertyGroup>
 

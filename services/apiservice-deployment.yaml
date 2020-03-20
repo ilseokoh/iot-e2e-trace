@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apiservice-deployment
+  labels:
+    app: apiservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: apiservice
+  template:
+    metadata:
+      name: apiservice-pod
+      labels:
+        app: apiservice
+    spec:
+      containers:
+      - name: apiservice
+        image: iotdistracingacr.azurecr.io/apiservice:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apiservice-service
+  labels:
+    app: apiservice-service
+spec:
+  type: NodePort 
+  # type: LoadBalancer / NodePort
+  ports:
+  - name: http-port
+    port: 80
+    targetPort: 80
+  selector:
+    app: apiservice

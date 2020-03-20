@@ -47,7 +47,13 @@ namespace ApiService
                                 .Build();
             var chillerDbService = new ChillerDbService(client, databaseName, containerName);
             DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/deviceId");
+            //await database.Database.CreateContainerIfNotExistsAsync(containerName, "/deviceId");
+            await database.Database.CreateContainerIfNotExistsAsync(new ContainerProperties
+            {
+                Id = containerName,
+                PartitionKeyPath = "/deviceId",
+                DefaultTimeToLive = 1 * 60 * 60 * 24 // 1 day
+            });
 
             return chillerDbService;
         }

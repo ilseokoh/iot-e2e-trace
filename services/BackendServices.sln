@@ -11,7 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTMessageService", "IoTMes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0169C00C-DAAF-4D40-98DA-E9B7895B60EE}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
+		apiservice-deployment.yaml = apiservice-deployment.yaml
+		iotmessageservice-deploymnet.yaml = iotmessageservice-deploymnet.yaml
 	EndProjectSection
 EndProject
 Global
