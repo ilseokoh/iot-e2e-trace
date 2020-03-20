@@ -3,7 +3,7 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "E2E_DIAGNOSTICS_EVENTHUB_ENDPOINT": "Endpoint=sb://eventhub-dis-tracing17b5.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=qJRfKD0ZnzOmlGWlCeOe0/U1UV0j3zoOfyMEi5eyk60=",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": "4d5a9a0e-c9da-4003-98f0-2f8757b1cf92"
+    "E2E_DIAGNOSTICS_EVENTHUB_ENDPOINT": "",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": ""
   }
 }
