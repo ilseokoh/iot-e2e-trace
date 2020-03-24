@@ -110,6 +110,29 @@ namespace dis_tracing_function
                             log.LogError($"Send Ingress log to AI failed: {e.Message}");
                         }
                     }
+                    else if (record.operationName == "DiagnosticIoTHubEgress")
+                    {
+                        try
+                        {
+                            var properties = JsonConvert.DeserializeObject<EgressProperties>(record.properties);
+                            if (properties != null)
+                            {
+                                SendEgressLog(properties.endpointName, Convert.ToInt32(record.durationMs), record.time, record.correlationId, properties, hasError);
+                            }
+                            else
+                            {
+                                log.LogError($"Egress log properties is null: {record.properties}");
+                            }
+                        }
+                        catch (JsonSerializationException e)
+                        {
+                            log.LogError($"Cannot parse Egress log properties: {e.Message}");
+                        }
+                        catch (Exception e)
+                        {
+                            log.LogError($"Send Egress log to AI failed: {e.Message}");
+                        }
+                    }
                 }
             }
         }
@@ -200,6 +223,59 @@ namespace dis_tracing_function
 
             telemetry.TrackRequest(requestTelemetry);
             telemetry.Flush();
+        }
+
+        public void SendEgressLog(string endpointName, int egressLatency, string time, string correlationId, EgressProperties properties, bool hasError = false)
+        {
+            var dependencyId = GetSpanId(correlationId);
+            var reqeustId = Guid.NewGuid().ToString();
+            var dependencyTelemetry = new DependencyTelemetry
+            {
+                Id = dependencyId,
+                Duration = new TimeSpan(0, 0, 0, 0, egressLatency),
+                Target = endpointName,
+                Success = !hasError,
+                Name = "Egress Latency"
+            };
+
+            dependencyTelemetry.Properties["parentSpanId"] = properties.parentSpanId;
+            dependencyTelemetry.Properties["endpointName"] = properties.endpointName;
+            dependencyTelemetry.Properties["endpointType"] = properties.endpointType;
+
+            DateTimeOffset timestamp;
+            if (!DateTimeOffset.TryParse(time, out timestamp))
+            {
+                timestamp = DateTimeOffset.Now;
+                dependencyTelemetry.Timestamp = timestamp;
+                dependencyTelemetry.Properties["originalTimestamp"] = time;
+            }
+            else
+            {
+                dependencyTelemetry.Timestamp = timestamp;
+            }
+
+            telemetry.Context.Cloud.RoleName = DefaultIoTHubRoleName;
+            telemetry.Context.Cloud.RoleInstance = DefaultRoleInstance;
+            telemetry.Context.Operation.Id = GetOperationId(correlationId);
+
+            telemetry.TrackDependency(dependencyTelemetry);
+            telemetry.Flush();
+
+
+            //var requestTelemetry = new RequestTelemetry
+            //{
+            //    Id = GetSpanId(correlationId)
+            //};
+
+            //requestTelemetry.Timestamp = timestamp;
+
+            //telemetry.Context.Cloud.RoleName = endpointName;
+            //telemetry.Context.Cloud.RoleInstance = DefaultRoleInstance;
+            //telemetry.Context.Operation.ParentId = dependencyId;
+            ////This telemtry is used to draw the application Map, so we do not save its correlation id
+
+            //telemetry.TrackRequest(requestTelemetry);
+            //telemetry.Flush();
         }
     }
 }
