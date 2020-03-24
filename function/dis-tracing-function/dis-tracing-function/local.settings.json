@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "E2E_DIAGNOSTICS_EVENTHUB_ENDPOINT": "",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": ""
+  }
+}

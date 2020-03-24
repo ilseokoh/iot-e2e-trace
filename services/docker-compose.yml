@@ -2,8 +2,8 @@ version: '3.4'
 
 services:
 
-  messagingservice:
-    image: testappreg001.azurecr.io/messagingservice:v1
+  apiserivce:
+    image: iotdistracingacr.azurecr.io/apiservice:v1
 
-  rulesetservice:
-    image: testappreg001.azurecr.io/rulesetservice:v1
+  iotmessageservice:
+    image: iotdistracingacr.azurecr.io/iotmessageservice:v1

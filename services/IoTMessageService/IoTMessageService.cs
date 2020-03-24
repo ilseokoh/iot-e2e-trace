@@ -53,6 +53,8 @@ namespace IoTMessageService
             storageConnectionString = _config.GetValue<string>("IOT_E2E_STORAGE_CONNECTIONSTRING");
 
             apiUrl = _config.GetValue<string>("IOT_E2E_API_SERVICE_URL");
+
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -72,7 +74,6 @@ namespace IoTMessageService
 
             // Start the processing
             await eventProcessorClient.StartProcessingAsync();
-
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -93,98 +94,36 @@ namespace IoTMessageService
 
         private async Task ProcessEventHandler(ProcessEventArgs eventArgs)
         {
+            //Activity.Current.SetIdFormat(ActivityIdFormat.W3C);
+            if (eventArgs.Data.SystemProperties.ContainsKey("traceparent"))
+            {
+                Activity.Current.SetParentId(eventArgs.Data.SystemProperties["traceparent"].ToString());
+            }
+
             var data = Encoding.UTF8.GetString(eventArgs.Data.Body.ToArray());
             _logger.LogInformation($"Message received. Partition: '{eventArgs.Partition.PartitionId}', Data: '{data}'");
 
+            var devid = eventArgs.Data.SystemProperties["iothub-connection-device-id"].ToString();
+            // Date and time the Device-to-Cloud message was received by IoT Hub.
+            var iothubTimestamp = DateTimeOffset.Parse(eventArgs.Data.SystemProperties["iothub-enqueuedtime"].ToString());
+            var telemetry = JsonConvert.DeserializeObject<ChillerTelemetry>(data);
 
-                var devid = eventArgs.Data.SystemProperties["iothub-connection-device-id"].ToString();
-                // Date and time the Device-to-Cloud message was received by IoT Hub.
-                var iothubTimestamp = DateTimeOffset.Parse(eventArgs.Data.SystemProperties["iothub-enqueuedtime"].ToString());
-                var telemetry = JsonConvert.DeserializeObject<ChillerTelemetry>(data);
+            // Invoke API Service.
+            var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+            var newmsg = new ChillerMessage()
+            {
+                DeviceId = devid,
+                Id = Guid.NewGuid().ToString(),
+                Humidity = telemetry.humidity,
+                Pressure = telemetry.pressure,
+                Temperature = telemetry.temperature,
+                TimeStamp = iothubTimestamp
+            };
+            request.Content = new StringContent(JsonConvert.SerializeObject(newmsg), Encoding.UTF8, "application/json");
 
-                // Invoke API Service.
-                var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
-                var newmsg = new ChillerMessage()
-                {
-                    DeviceId = devid,
-                    Id = Guid.NewGuid().ToString(),
-                    Humidity = telemetry.humidity,
-                    Pressure = telemetry.pressure,
-                    Temperature = telemetry.temperature,
-                    TimeStamp = iothubTimestamp
-                };
-                request.Content = new StringContent(JsonConvert.SerializeObject(newmsg), Encoding.UTF8, "application/json");
+            var response = await _clientFactory.CreateClient().SendAsync(request);
 
-                var response = await _clientFactory.CreateClient().SendAsync(request);
-
-            
-
-            //var requestTelemetry = new RequestTelemetry
-            //{
-            //    Name = $"IoTMessageService-{Environment.MachineName}"
-            //};
-            //requestTelemetry.Context.Cloud.RoleName = "IoTMessageService";
-            //requestTelemetry.Context.Cloud.RoleInstance = Environment.MachineName;
-
-            //// If there is upstream service, set the telmetry context accordingly.
-            ////if (context.Request.Headers.ContainsKey("Request-Id"))
-            ////{
-            ////    var requestId = context.Request.Headers.Get("Request-Id");
-            ////    // Get the operation ID from the Request-Id (if you follow the HTTP Protocol for Correlation).
-            ////    requestTelemetry.Context.Operation.Id = GetOperationId(requestId);
-            ////    requestTelemetry.Context.Operation.ParentId = requestId;
-            ////}
-
-            //// StartOperation is a helper method that allows correlation of 
-            //// current operations with nested operations/telemetry
-            //// and initializes start time and duration on telemetry items.
-            //var operation = _telemetryClient.StartOperation(requestTelemetry);
-
-            //Stopwatch swatch = new Stopwatch();
-            //swatch.Start();
-
-            //var data = Encoding.UTF8.GetString(eventArgs.Data.Body.ToArray());
-            //_logger.LogInformation($"Message received. Partition: '{eventArgs.Partition.PartitionId}', Data: '{data}'");
-
-            //try
-            //{
-
-
-            //    var devid = eventArgs.Data.SystemProperties["iothub-connection-device-id"].ToString();
-            //    // Date and time the Device-to-Cloud message was received by IoT Hub.
-            //    var iothubTimestamp = DateTimeOffset.Parse(eventArgs.Data.SystemProperties["iothub-enqueuedtime"].ToString());
-            //    var telemetry = JsonConvert.DeserializeObject<ChillerTelemetry>(data);
-
-            //    // Invoke API Service.
-            //    var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
-            //    var newmsg = new ChillerMessage()
-            //    {
-            //        DeviceId = devid,
-            //        Id = Guid.NewGuid().ToString(),
-            //        Humidity = telemetry.humidity,
-            //        Pressure = telemetry.pressure,
-            //        Temperature = telemetry.temperature,
-            //        TimeStamp = iothubTimestamp
-            //    };
-            //    request.Content = new StringContent(JsonConvert.SerializeObject(newmsg), Encoding.UTF8, "application/json");
-
-            //    var response = await _clientFactory.CreateClient().SendAsync(request);
-
-            //    if (response.IsSuccessStatusCode) requestTelemetry.Success = true;
-            //    else requestTelemetry.Success = false;
-
-            //    swatch.Stop();
-            //}
-            //catch(Exception ex)
-            //{
-            //    _telemetryClient.TrackException(ex);
-            //    requestTelemetry.Success = false;
-            //}
-            //finally
-            //{
-            //    // Now it's time to stop the operation (and track telemetry).
-            //    _telemetryClient.StopOperation(operation);
-            //}
+            if (response.IsSuccessStatusCode) await eventArgs.UpdateCheckpointAsync();
         }
 
         private Task ProcessErrorHandler(ProcessErrorEventArgs eventArgs)

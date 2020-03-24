@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiService.Services;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,6 +31,7 @@ namespace ApiService
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddApplicationInsightsTelemetry();
+            services.AddSingleton<ITelemetryInitializer, CloudRoleNameTelemetryInitializer>();
             services.AddSingleton<IChillerDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
         }
 
@@ -45,7 +47,13 @@ namespace ApiService
                                 .Build();
             var chillerDbService = new ChillerDbService(client, databaseName, containerName);
             DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/deviceId");
+            //await database.Database.CreateContainerIfNotExistsAsync(containerName, "/deviceId");
+            await database.Database.CreateContainerIfNotExistsAsync(new ContainerProperties
+            {
+                Id = containerName,
+                PartitionKeyPath = "/deviceId",
+                DefaultTimeToLive = 1 * 60 * 60 * 24 // 1 day
+            });
 
             return chillerDbService;
         }

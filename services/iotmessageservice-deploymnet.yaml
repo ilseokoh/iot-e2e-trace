@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iotmessageservice-deployment
+  labels:
+    app: iotmessageservice
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: iotmessageservice
+  template:
+    metadata:
+      name: iotmessageservice-pod
+      labels:
+        app: iotmessageservice
+    spec:
+      containers:
+      - name: iotmessageservice
+        image: iotdistracingacr.azurecr.io/iotmessageservice:v1
+        imagePullPolicy: Always
