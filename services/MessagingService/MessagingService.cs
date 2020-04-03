@@ -61,8 +61,15 @@ namespace MessagingService
 
             eventProcessorHost.PartitionManagerOptions = new PartitionManagerOptions()
             {
-                LeaseDuration = TimeSpan.FromSeconds(60),
-                RenewInterval = TimeSpan.FromSeconds(60)
+                // Interval for which the lease is taken on Azure Blob representing an EventHub partition. 
+                // If the lease is not renewed within this interval, 
+                // it will cause it to expire and ownership of the partition will move to another EventProcessorHost instance.
+                LeaseDuration = TimeSpan.FromSeconds(100),
+
+                //Renew interval for all leases for partitions currently held by EventProcessorHost instance.
+                RenewInterval = TimeSpan.FromSeconds(90),  // default 10sec
+
+                // So RenewInterval is smaller than Leaseduration
             };
 
             // Registers the Event Processor Host and starts receiving messages
