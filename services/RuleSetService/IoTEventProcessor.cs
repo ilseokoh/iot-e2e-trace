@@ -61,12 +61,8 @@ namespace RuleSetService
 
         public async Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> messages)
         {
-            Stopwatch swatch = new Stopwatch();
-
             foreach (var eventData in messages)
             {
-                swatch.Start();
-
                 var data = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
                 _logger.LogInformation($"Message received. Partition: '{context.PartitionId}', Data: '{data}'");
 
@@ -94,8 +90,6 @@ namespace RuleSetService
                     _logger.LogError($"{DateTime.Now} > Exception: {exception.Message}");
                     ehResult = false;
                 }
-
-                swatch.Stop();
 
                 var dependencyTelemetry = new DependencyTelemetry
                 {
