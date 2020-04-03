@@ -59,6 +59,12 @@ namespace RuleSetService
                 StorageConnectionString,
                 StorageContainerName);
 
+            eventProcessorHost.PartitionManagerOptions = new PartitionManagerOptions()
+            {
+                LeaseDuration = TimeSpan.FromSeconds(60),
+                RenewInterval = TimeSpan.FromSeconds(60)
+            };
+
             // Registers the Event Processor Host and starts receiving messages
             // await eventProcessorHost.RegisterEventProcessorAsync<IoTEventProcessor>();
 
