@@ -66,7 +66,7 @@ function main(context, previousState, previousProperties) {
 
     // just increse the hit count
     state.hit = previousState.hit + 1;
-    state.hitTime = context.currentTime;
+    state.hitTime = (new Date()).toJSON();
     state.corellationId = uuidv4();
     // calc total count
     properties.TotalCount = Number(previousProperties.TotalCount) + state.hit;
