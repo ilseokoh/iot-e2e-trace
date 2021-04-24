@@ -32,11 +32,13 @@ function main(context, previousState, previousProperties) {
 
     // just increse the hit count
     state.hit = 0;
-    state.hitTime = context.currentTime;
+    //state.hitTime = context.currentTime;
+    state.hitTime = (new Date()).toJSON();
 
     // reset total count
     properties.TotalCount = 0;
-    properties.ResetTime = context.currentTime;
+    //properties.ResetTime = context.currentTime;
+    properties.ResetTime = (new Date()).toJSON();
     
     //updateState(state);
     //updateProperty("ResetTime", properties.ResetTime);
