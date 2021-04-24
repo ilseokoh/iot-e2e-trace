@@ -1,9 +1,9 @@
 {
     "SchemaVersion": "1.0.0",
     "Id": "iot-eh-tester-01",
-    "Version": "0.0.1",
-    "Name": "IoT EventHub Tester",
-    "Description": "IoT EventHub Tester",
+    "Version": "0.0.2",
+    "Name": "IoT EventHub Tester v2",
+    "Description": "IoT EventHub Tester with timestamp",
     "Protocol": "AMQP",
     "Simulation": {
         "InitialState": {
